@@ -13,7 +13,7 @@ The comparison behind this is in `docs/research/notification-providers.md` on th
 
 ## Consequences
 
-- No provider runs without credentials, so the local stand-in is ours, on the server and in the browser. For that reason the inbox is our own interface on Knock's hooks, not Knock's prebuilt components.
+- No provider runs without credentials, so the local stand-in is ours. For that reason the inbox is our own interface, not Knock's prebuilt components. ADR 0014 later moved it off Knock's hooks too: the inbox reads Knock through our server.
 - Knock has no scheduled digests. A daily or weekly digest would need our own scheduler, which the app does not have.
 - Outgrowing 10,000 messages a month means a step to $250 a month.
-- Knock's hooks are untested under server-rendered React Router. If they fail there, the fallback is Knock's Feed API from our own code, not another provider.
+- Knock's hooks are untested under server-rendered React Router. ADR 0014 avoids the question by calling Knock's API from our own server code.
