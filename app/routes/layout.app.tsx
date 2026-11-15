@@ -3,6 +3,11 @@ import type { Route } from "./+types/layout.app";
 import { Sidebar } from "~/components/sidebar";
 import { DevUI } from "~/components/dev-ui";
 import { Toaster } from "sonner";
+import {
+  ProtoNotificationsProvider,
+  ProtoMainTop,
+  PrototypeSwitcher,
+} from "~/components/prototype-notifications";
 import { getCurrentUserId, getDevCountry } from "~/lib/session";
 import { getCountryTierInfo, COUNTRIES } from "~/lib/ppp";
 import { eq, and, or, sql, desc } from "drizzle-orm";
@@ -198,7 +203,19 @@ export async function loader({ request }: Route.LoaderArgs) {
       })
     : [];
 
+  // PROTOTYPE: a real lesson so fake thread Notifications link somewhere true.
+  const protoLesson = db
+    .select({ lessonId: lessons.id, slug: courses.slug })
+    .from(lessons)
+    .innerJoin(modules, eq(lessons.moduleId, modules.id))
+    .innerJoin(courses, eq(modules.courseId, courses.id))
+    .limit(1)
+    .get();
+
   return {
+    protoLessonPath: protoLesson
+      ? `/courses/${protoLesson.slug}/lessons/${protoLesson.lessonId}`
+      : "/courses",
     users: users.map((u) => ({ id: u.id, name: u.name, role: u.role })),
     currentUser: currentUser
       ? {
@@ -228,6 +245,14 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
   } = loaderData;
 
   return (
+    <ProtoNotificationsProvider
+      userId={currentUser?.id ?? null}
+      profile={{
+        role: currentUser?.role ?? null,
+        isTeamAdmin: userIsTeamAdmin,
+        lessonPath: loaderData.protoLessonPath,
+      }}
+    >
     <div className="flex h-screen overflow-hidden">
       <Sidebar
         currentUser={currentUser}
@@ -235,6 +260,7 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
         isTeamAdmin={userIsTeamAdmin}
       />
       <main className="flex-1 overflow-y-auto">
+        <ProtoMainTop />
         <Outlet />
       </main>
       <DevUI
@@ -245,6 +271,8 @@ export default function AppLayout({ loaderData }: Route.ComponentProps) {
         countries={countries}
       />
       <Toaster position="bottom-right" richColors closeButton />
+      <PrototypeSwitcher />
     </div>
+    </ProtoNotificationsProvider>
   );
 }

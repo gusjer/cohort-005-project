@@ -4,6 +4,11 @@ import { cn } from "~/lib/utils";
 import { UserRole } from "~/db/schema";
 import { UserAvatar } from "~/components/user-avatar";
 import {
+  ProtoSidebarHeaderSlot,
+  ProtoNavSlot,
+  ProtoNavBadge,
+} from "~/components/prototype-notifications";
+import {
   BookOpen,
   ChartColumn,
   LayoutDashboard,
@@ -140,9 +145,11 @@ export function Sidebar({
         <NavLink to="/" className="text-lg font-bold tracking-tight">
           Cadence
         </NavLink>
+        <ProtoSidebarHeaderSlot />
       </div>
 
       <nav className="flex-1 space-y-1 p-3">
+        <ProtoNavSlot />
         {navItems
           .filter((item) => isVisible(item, currentUserRole))
           .map((item) => (
@@ -160,6 +167,7 @@ export function Sidebar({
             >
               {item.icon}
               {item.label}
+              <ProtoNavBadge to={item.to} />
             </NavLink>
           ))}
         {isTeamAdmin && (
@@ -176,6 +184,7 @@ export function Sidebar({
           >
             <UsersRound className="size-4" />
             Team
+            <ProtoNavBadge to="/team" />
           </NavLink>
         )}
       </nav>
@@ -245,9 +254,10 @@ export function Sidebar({
             <NavLink
               to="/settings"
               title="Settings"
-              className="rounded-md p-1 text-sidebar-foreground/50 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+              className="flex items-center gap-1 rounded-md p-1 text-sidebar-foreground/50 transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
             >
               <Settings className="size-4" />
+              <ProtoNavBadge to="/settings" />
             </NavLink>
             <Form method="post" action="/api/logout">
               <button
